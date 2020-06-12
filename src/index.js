@@ -12,8 +12,18 @@ const port = process.env.PORT || 3000
 app.use(express.json())
 app.use(express.static(path.join(__dirname, "../public"))) //set the public folder
 
-io.on("connection", () =>{
+let count = 0
+
+//Event fired when a new client  is connected
+io.on("connection", (socket) =>{ //socket is an obj with connection info
     console.log("New WebSocket connection")
+    
+    socket.emit("countUpdated", count) //emmit an event to the clients and send "count" data
+    
+    socket.on("increment", () => { //recevied event from client
+        count++
+        io.emit("countUpdated", count) //emit the event to ALL clients connected (with socket just with a specific client)
+    })
 })
 
 server.listen(port, () => { //link to the custom server with the socket
